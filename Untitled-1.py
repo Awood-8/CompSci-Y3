@@ -1,33 +1,46 @@
-#%%
-%matplotlib qt
-import matplotlib.pyplot as plt
+import random
 import numpy as np
-import time
+import matplotlib.pyplot as plt
+
+def bv(mu,sig, n, t):
+    vel = np.zeros((n,t,3))
+    #vel[:,0,3] = np.arange(0,t,1)
+    vel[:,0,-1] = np.random.normal(mu, sig, n)
+    return vel
+
+def tau(n):
+    return np.random.exponential(2.5e-3,n)
+
+def vert(n, tau, t):
+    vert = np.zeros((n,t))
+    vert[:,:] -= tau
+    print(vert)
 
 
-fig = plt.figure()
-ax = fig.add_subplot(projection='3d')
+n = 100
+t = 100
 
-# Make the X, Y meshgrid.
-xs = np.linspace(-1, 1, 50)
-ys = np.linspace(-1, 1, 50)
-X, Y = np.meshgrid(xs, ys)
+x=bv(2000, 50, n, t)
+#print(x)
 
-# Set the z axis limits, so they aren't recalculated each frame.
-ax.set_zlim(-1, 1)
+# Copied----------------------------------
+count, bins, ignored = plt.hist(x[:,0,-1], 100, density=True)
 
-# Begin plotting.
-wframe = None
-tstart = time.time()
-for phi in np.linspace(0, 180. / np.pi, 100):
-    # If a line collection is already remove it before drawing.
-    if wframe:
-        wframe.remove()
-    # Generate data.
-    Z = np.cos(2 * np.pi * X + phi) * (1 - np.hypot(X, Y))
-    # Plot the new wireframe and pause briefly before continuing.
-    wframe = ax.plot_wireframe(X, Y, Z, rstride=2, cstride=2)
-    plt.pause(.001)
+plt.plot(bins, 1/(50 * np.sqrt(2 * np.pi)) *
 
-print('Average FPS: %f' % (100 / (time.time() - tstart)))
-# %%
+               np.exp( - (bins - 2000)**2 / (2 * 50**2) ),
+
+         linewidth=2, color='r')
+
+plt.show()
+
+sample = tau(n)
+
+bin = np.arange(0,15e-3,0.0001)
+
+plt.hist(sample, bins=bin, edgecolor='blue') 
+plt.title("Exponential Distribution") 
+plt.show()
+#-----------------------------------------
+
+vert(n, sample, t)
